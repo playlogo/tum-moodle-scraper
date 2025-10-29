@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  moodle-scraper:
+    build: .
+    container_name: moodle-scraper
+    volumes:
+      - ./data:/usr/src/app/data # CHANGE "./data" to where on your pc you want the files to be stored
+    environment:
+      - RUN_INTERVAL_HOURS=6
+
+      - 'COURSES=["Praktikum: Grundlagen der Programmierung (IN0002)", "Einführung in die Rechnerarchitektur (IN0004)", "Einführung in die Informatik (IN0001)", "Diskrete Strukturen (IN0015)"]' # CHANGE, copy your course names from Moodle
+
+      - USERNAME=${USERNAME} # Do not change (get's loaded from your .env file)
+      - PASSWORD=${PASSWORD} # Do not change (get's loaded from your .env file)
+      - DATA_DIR=/usr/src/app/data # Do not change
+      - TZ=UTC # Do not change
+    restart: unless-stopped
