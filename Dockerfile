@@ -8,6 +8,7 @@ RUN apt-get update && apt-get install -y \
 
 
 # Prep for main
+
 WORKDIR /usr/src/app
 
 COPY requirements.txt ./
@@ -17,15 +18,16 @@ RUN playwright install-deps chromium-headless-shell chromium
 
 RUN mkdir -p /usr/src/app/data
 
+COPY run-moodle-scraper.sh /run-moodle-scraper.sh
+COPY entrypoint.sh /entrypoint.sh
+
 # Copy main
 COPY src/ .
 
 # Copy entrypoint script
-COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
 # Copy cron job script
-COPY run-moodle-scraper.sh /run-moodle-scraper.sh
 RUN chmod +x /run-moodle-scraper.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

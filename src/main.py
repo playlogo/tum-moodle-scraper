@@ -5,6 +5,7 @@ import tempfile
 import random
 import subprocess
 import json
+import glob
 
 from playwright.async_api import async_playwright, Playwright, Page
 
@@ -45,6 +46,79 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
 
     await page.goto(courseUrl, timeout=0)
     await page.click(".nav-link.downloadcenterlink")
+    await page.wait_for_timeout(5000)
+
+    # Extract all downloadable files
+    possible_dirs = await (await page.query_selector(".mform")).query_selector_all(
+        ".card.block.mb-3"
+    )
+
+    files = []
+    for dir in possible_dirs:
+        dir_files = await dir.query_selector_all("label")
+        skip_first = True
+
+        for file in dir_files:
+            if skip_first:
+                skip_first = False
+                continue
+
+            file_info = {
+                "folder": await (
+                    await dir.query_selector(".sectiontitle.mt-1")
+                ).inner_text(),
+                "filename": (
+                    await (await file.query_selector(".itemtitle > span")).inner_text()
+                )
+                .replace(":", "")
+                .replace("/", "")
+                .split(".")[0],
+                "selectId": (await file.get_attribute("for")),
+                "pdf": await (
+                    await file.query_selector(".itemtitle > img")
+                ).get_attribute("alt")
+                == "Datei",
+            }
+            files.append(file_info)
+
+    # Filter out already downloaded files
+    ids_to_select_and_download = []
+
+    for file in files:
+        # Check if it exists locally
+        globbed = glob.glob(
+            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['filename']}*"
+        )
+
+        if len(globbed) == 1:
+            # Found, skipping
+            continue
+        if len(globbed) > 1:
+            # Multiple files start with the same name, try to get a exact match up to file ending
+            try:
+                [x.split(".")[0] for x in globbed].index(
+                    f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['filename']}"
+                )
+                continue
+            except ValueError:
+                pass
+
+        # Else add to download list
+        print(f"Found new file: {file['folder']}/{file['filename']}")
+        ids_to_select_and_download.append(file["selectId"])
+
+    if len(ids_to_select_and_download) == 0:
+        print(f"Nothing new for course: {courseName}")
+        return
+
+    # Deselect everything
+    await page.click("#downloadcenter-none-included")
+
+    # And gradually select what to download
+    for id in ids_to_select_and_download:
+        await page.click(f"#{id}")
+
+    # ===
 
     # Handle download event
     async with page.expect_download() as download_info:
@@ -140,8 +214,12 @@ async def login(page: Page):
 
 
 async def run(playwright: Playwright):
+    headless = True
+    if os.getenv("DISABLE_HEADLESS") != None:
+        headless = False
+
     chromium = playwright.chromium
-    browser = await chromium.launch(headless=True)
+    browser = await chromium.launch(headless=headless)
     page = await browser.new_page()
 
     await login(page)

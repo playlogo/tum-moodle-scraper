@@ -19,8 +19,12 @@ PASSWORD=<your password>
 
 4. Start it! `docker compose up -d`
 
-[5. It'll now run every 6h (can be changed, see `docker-compose.yml`) in the background, stop it with: `docker compose down`]
+[5. It'll now run every 12h (can be changed, see `docker-compose.yml`) in the background, stop it with: `docker compose down`]
 
 ## ToDo
 
-- [ ] Add some sort of check summing to only download newly added files
+- [x] Add some sort of check summing to only download newly added files
+
+## Development
+
+Disable playwright headless mode with `export DISABLE_HEADLESS=true`
