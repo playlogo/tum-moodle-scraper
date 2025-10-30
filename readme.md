@@ -1,5 +1,7 @@
 # TUM Moodle scraper
 
+> DISCLAIMER: The software is currently in super early alpha stage, and could randomly overwrite everything in the exposed `data` folder (it shouldn't, but it currently doesn't compare the checksums of the files it replaces).
+
 Automatically regularly scrape your TUM Moodle to download all files.
 Useful if combined with (for example) Syncthing, to automatically download the lecture slides & exercise sheets to your laptop & tablet.
 
@@ -23,7 +25,8 @@ PASSWORD=<your password>
 
 ## ToDo
 
-- [x] Add some sort of check summing to only download newly added files
+- [x] Add some sort of check to only download newly added files
+- [ ] Compare if the already downloaded files have been manually edited -> ignore them
 
 ## Development
 
