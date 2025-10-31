@@ -6,6 +6,7 @@ import random
 import subprocess
 import json
 import glob
+import shutil
 
 from playwright.async_api import async_playwright, Playwright, Page
 
@@ -95,13 +96,20 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
             continue
         if len(globbed) > 1:
             # Multiple files start with the same name, try to get a exact match up to file ending
-            try:
-                [x.split(".")[0] for x in globbed].index(
-                    f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['filename']}"
+            if (
+                len(
+                    [
+                        i
+                        for i, item in enumerate(globbed)
+                        if item.startswith(
+                            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['filename']}."
+                        )
+                    ]
                 )
+                == 1
+            ):
+
                 continue
-            except ValueError:
-                pass
 
         # Else add to download list
         print(f"Found new file: {file['folder']}/{file['filename']}")
@@ -140,14 +148,14 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
     print(f"Unzipping to: {ZIP_LOCAL_PATH}extracted")
 
     # Unzip file
+    COPY_TARGET_PATH = f"{os.getenv('DATA_DIR')}/{courseName}/"
+
     with zipfile.ZipFile(ZIP_LOCAL_PATH + download.suggested_filename, "r") as zip_ref:
         zip_ref.extractall(ZIP_LOCAL_PATH + "extracted")
 
     # Copy extracted dir in tmp to storage
-    TARGET_PATH = f"{os.getenv('DATA_DIR')}/{courseName}/"
-
-    print(f"Copying to: {TARGET_PATH}")
-    os.makedirs(TARGET_PATH, exist_ok=True)
+    print(f"Copying to: {COPY_TARGET_PATH}")
+    os.makedirs(COPY_TARGET_PATH, exist_ok=True)
 
     rsync_args = [
         "rsync",
@@ -156,7 +164,7 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
         "--backup",
         "--suffix=_modified",
         f"{ZIP_LOCAL_PATH}extracted/",
-        f"{TARGET_PATH}",
+        f"{COPY_TARGET_PATH}",
     ]
 
     try:
@@ -165,6 +173,9 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
         print("Error while coping extracted files")
         print(rsync_args)
         print(err)
+
+    # Delete tmp downloaded & tmp extracted files
+    shutil.rmtree(ZIP_LOCAL_PATH)
 
 
 async def download_all_courses(page: Page):

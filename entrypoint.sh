@@ -2,7 +2,7 @@
 set -e
 
 # Set default interval if not provided
-INTERVAL_HOURS=${RUN_INTERVAL_HOURS:-12}
+INTERVAL_HOURS=${RUN_INTERVAL_HOURS:-24}
 
 run_moodle_scraper() {
     echo "$(date): Running moodle scraper..."
