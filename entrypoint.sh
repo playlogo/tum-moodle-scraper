@@ -7,7 +7,7 @@ INTERVAL_HOURS=${RUN_INTERVAL_HOURS:-24}
 run_moodle_scraper() {
     echo "$(date): Running moodle scraper..."
     cd /usr/src/app
-    python main.py
+    /usr/local/bin/python main.py
     echo "$(date): moodle scraper completed"
 }
 
@@ -16,6 +16,8 @@ if [ "$1" = "run-once" ]; then
     run_moodle_scraper
     exit 0
 fi
+
+echo $(which python)
 
 # Setup cron job
 if [ "$1" = "cron" ]; then
