@@ -1,15 +1,17 @@
 # TUM Moodle scraper
 
-> DISCLAIMER: The software is currently in super early alpha stage, and could randomly overwrite everything in the exposed `data` folder (it shouldn't, but it currently doesn't compare the checksums of the files it replaces to check if they've been modified).
+> DISCLAIMER: The software is currently in super early alpha stage, and could randomly overwrite everything in the exposed `data` folder (it shouldn't, but I take no responsibility!).
 
 > KNOWN BUGS:
 >
-> - Files modified on Moodle will currently not be added to your local files
+> - Already downloaded files will get updated if the original file on moodle changes
 
 Automatically regularly scrape your TUM Moodle to download all files.
-Useful if combined with (for example) Syncthing, to automatically download the lecture slides & exercise sheets to your laptop & tablet.
+Useful if combined with (for example) [Syncthing](https://syncthing.net/), to automatically download the lecture slides & exercise sheets to your laptop & tablet.
 
 Bundled into a docker container (docker compose included) to allow easy setup - See [Getting started](#getting-started)
+
+This project has no affiliation with, and is not endorsed by, Technische Universität München (TUM).
 
 ## Getting started
 
@@ -25,7 +27,7 @@ PASSWORD=<your password>
 
 4. Start it! `docker compose up -d`
 
-[5. It'll now run every 24h (can be changed, see `docker-compose.yml`) in the background, stop it with: `docker compose down`]
+[5. It'll now run every 23h (can be changed, see `docker-compose.yml`) in the background, stop it with: `docker compose down`]
 
 ## ToDo
 
