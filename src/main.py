@@ -15,6 +15,16 @@ from dotenv import load_dotenv
 load_dotenv()
 
 
+def reduce(toReduce: str):
+    toReduce = toReduce.strip()
+    toReduce = toReduce.replace(":", "")
+
+    if len(toReduce) > 64:
+        return f"{toReduce[:31]}___{toReduce[len(toReduce) - 30:]}"
+
+    return toReduce
+
+
 async def extract_course_list(page: Page):
     """
     From chatgpt, modified
@@ -69,7 +79,11 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
                     await dir.query_selector(".sectiontitle.mt-1")
                 ).inner_text(),
                 "filename": (
-                    await (await file.query_selector(".itemtitle > span")).inner_text()
+                    reduce(
+                        await (
+                            await file.query_selector(".itemtitle > span")
+                        ).inner_text()
+                    )
                 )
                 .replace(":", "")
                 .replace("/", "")
