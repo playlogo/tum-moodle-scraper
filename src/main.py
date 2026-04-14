@@ -210,6 +210,7 @@ async def download_all_courses(page: Page):
 
         checkCourses = True
         coursesToDownload = json.loads(os.getenv("COURSES"))
+        coursesToDownload = [courseName.replace(":", "") for courseName in coursesToDownload]
     else:
         print("Downloading all courses")
 
