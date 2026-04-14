@@ -79,7 +79,7 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
             file_info = {
                 "folder": await (
                     await dir.query_selector(".sectiontitle.mt-1")
-                ).inner_text().replace(":", ""),
+                ).inner_text(),
                 "filename": "".join(
                     reduce(
                         await (
