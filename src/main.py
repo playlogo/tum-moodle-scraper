@@ -80,7 +80,7 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
                 "folder": await (
                     await dir.query_selector(".sectiontitle.mt-1")
                 ).inner_text(),
-                "filename": "".join(
+                "filename": ".".join(
                     reduce(
                         await (
                             await file.query_selector(".itemtitle > span")
@@ -123,7 +123,7 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
                         i
                         for i, item in enumerate(globbed)
                         if item.startswith(
-                            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['fullfilename']}.*"
+                            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['fullfilename']}*"
                         )
                     ]
                 )
