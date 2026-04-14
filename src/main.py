@@ -40,12 +40,13 @@ async def extract_course_list(page: Page):
         name = await (
             course_links.nth(i).get_attribute("title")
             or course_links.nth(i).inner_text().split("\n")[0].strip()
-        ).replace(":", "")
+        )
         
         url = await course_links.nth(i).get_attribute("href")
 
         if name:
             name = name.strip()
+            name = name.replace(":", "")
 
         if name and url:
             courses.append({"name": name, "url": url})
