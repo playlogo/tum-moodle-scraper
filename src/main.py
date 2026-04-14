@@ -40,7 +40,8 @@ async def extract_course_list(page: Page):
         name = await (
             course_links.nth(i).get_attribute("title")
             or course_links.nth(i).inner_text().split("\n")[0].strip()
-        )
+        ).replace(":", "")
+        
         url = await course_links.nth(i).get_attribute("href")
 
         if name:
@@ -77,17 +78,22 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
             file_info = {
                 "folder": await (
                     await dir.query_selector(".sectiontitle.mt-1")
-                ).inner_text(),
-                "filename": (
+                ).inner_text().replace(":", ""),
+                "filename": "".join(
                     reduce(
                         await (
                             await file.query_selector(".itemtitle > span")
                         ).inner_text()
                     )
-                )
-                .replace(":", "")
-                .replace("/", "")
-                .split(".")[0],
+                    .replace("/", "")
+                    .split(".")[:-1]
+                ),
+                "fullfilename": reduce(
+                        await (
+                            await file.query_selector(".itemtitle > span")
+                        ).inner_text()
+                    )
+                    .replace("/", ""),
                 "selectId": (await file.get_attribute("for")),
                 "pdf": await (
                     await file.query_selector(".itemtitle > img")
@@ -116,7 +122,7 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
                         i
                         for i, item in enumerate(globbed)
                         if item.startswith(
-                            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['filename']}."
+                            f"{os.getenv("DATA_DIR")}/{courseName}/{file['folder']}/{file['fullfilename']}.*"
                         )
                     ]
                 )
