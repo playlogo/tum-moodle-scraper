@@ -41,7 +41,7 @@ async def extract_course_list(page: Page):
             course_links.nth(i).get_attribute("title")
             or course_links.nth(i).inner_text().split("\n")[0].strip()
         )
-        
+
         url = await course_links.nth(i).get_attribute("href")
 
         if name:
@@ -90,11 +90,8 @@ async def download_course_attachments(page: Page, courseUrl: str, courseName: st
                     .split(".")[:-1]
                 ),
                 "fullfilename": reduce(
-                        await (
-                            await file.query_selector(".itemtitle > span")
-                        ).inner_text()
-                    )
-                    .replace("/", ""),
+                    await (await file.query_selector(".itemtitle > span")).inner_text()
+                ).replace("/", ""),
                 "selectId": (await file.get_attribute("for")),
                 "pdf": await (
                     await file.query_selector(".itemtitle > img")
@@ -210,7 +207,9 @@ async def download_all_courses(page: Page):
 
         checkCourses = True
         coursesToDownload = json.loads(os.getenv("COURSES"))
-        coursesToDownload = [courseName.replace(":", "") for courseName in coursesToDownload]
+        coursesToDownload = [
+            courseName.replace(":", "") for courseName in coursesToDownload
+        ]
     else:
         print("Downloading all courses")
 

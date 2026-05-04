@@ -3,6 +3,7 @@ version: "3.8"
 services:
   moodle-scraper:
     build: .
+    user: "1000"
     container_name: moodle-scraper
     volumes:
       - ./data:/usr/src/app/data # CHANGE "./data" to where on your pc you want the files to be stored
